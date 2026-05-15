@@ -10,6 +10,13 @@ import dotenv
 from dotenv import load_dotenv
 import json
 
+#Para loggearse deben correr la función(def) 
+# esta función (sacado de su proyecto de la API de Google):
+#credentials = "credentials_modules.json"
+#gauth = GoogleAuth()
+#gauth.SaveCredentialsFile(credentials)
+#drive = GoogleDrive(gauth) 
+
 credentials = "credentials_module.json"
 
 def login():
@@ -145,6 +152,10 @@ for archivo in lista_clases:
 
     import google.generativeai as genai
     import glob
+
+
+    #En el ".env" de su proyecto deben definir la variable que contiene su api_key ej: API_IA = "AI123X1CX312G3AJHSDASD"
+    #Y con ello, declaran la variable de load_toenv para que la reconozca
 
     load_dotenv(override=True)
     api_gemini_key = os.getenv("API_KEY_GEMINI_PRO_1.5")

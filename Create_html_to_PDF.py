@@ -7,6 +7,9 @@ import pdfkit
 from xhtml2pdf import pisa
 from datetime import date 
 
+    #En el ".env" de su proyecto deben definir la variable que contiene su api_key ej: API_IA = "AI123X1CX312G3AJHSDASD"
+    #Y con ello, declaran la variable de load_toenv para que la reconozca
+
 load_dotenv(override=True)
 
 documentos_conversion = sorted(glob.glob("Reporte_Auditoria_*.txt"))
