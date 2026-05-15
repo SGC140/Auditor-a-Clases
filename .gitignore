@@ -1,0 +1,13 @@
+# Entornos virtuales, cachés y configuración de editor
+venv/
+__pycache__/
+.vscode/
+
+# Variables de entorno y credenciales (¡Perfecto que los estés ignorando!)
+.env
+credentials_module.json
+applied-plexus-476714-n0-d7c1f0400cc6.json
+client_secrets.json
+
+# Archivos generados / Reportes (Recomendado para no saturar el repositorio)
+Reporte_Auditoria_*
