@@ -33,6 +33,8 @@ def login():
 
 drive = login()
 
+#En el .env declaran la variable con el ID de su carpeta de Drive en la que tengan los videos que deseen auditar
+
 load_dotenv()
 id_carpeta = os.getenv("carpeta_drive")
 query = f"'{id_carpeta}' in parents and trashed = false"
@@ -41,6 +43,10 @@ lista_clases = drive.ListFile({'q': query}).GetList()
 for archivo in lista_clases:
     nombre_archivo = archivo['title']
     id_archivo = archivo['id']
+
+    #si tienen más de un video en la carpeta pero no quieren auditar todos, pueden hacer
+
+    # if nombre_archivo = "archvio_que_deseen" (y deben identar el resto del código a la derecha para que no arroje errores): 
 
 
     print(f"{nombre_archivo} : {id_archivo}")
