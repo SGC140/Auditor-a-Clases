@@ -31,7 +31,7 @@ h2 { color: #E67E22; border-left: 5px solid #FF9933; padding-left: 10px; }
 PROMPT = (
     "Convierte este archivo en un código HTML muy bonito y profesional (sin emojis). "
     "REGLA ESTRICTA: Usa CSS básico en línea o en <style>. NO uses flexbox, CSS grid, ni variables :root. "
-    "Usa tablas o divs con márgene455544444444444444444444444444444444444444444444444444444s para la estructura. "
+    "Usa tablas o divs con márgenes para la estructura. "
     "Abstente a responder únicamente con el contenido del HTML y NO PONGAS '```html' AL PRINCIPIO."
     "Con margen justificado, letra grande y bonita, colores naranjas (que son los de la compañía). Buen uso de la negrilla y el tamaño de la letra. Letra Tahoma 12 para el cuerpo."
     "Interlineado sencillo, mucha creatividad sin perder lo técnico y lo profesional un buen título en función del nombre del archivo que estás analizando y sin tanto gasto de espacios y páginas"
