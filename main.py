@@ -10,8 +10,8 @@ import dotenv
 from dotenv import load_dotenv
 import json
 
-#Para loggearse deben correr la función(def) 
-# esta función (sacado de su proyecto de la API de Google):
+#Para loggearse deben correr la función(def) esta función (sacado de su proyecto de la API de Google):
+
 #credentials = "credentials_modules.json"
 #gauth = GoogleAuth()
 #gauth.SaveCredentialsFile(credentials)
