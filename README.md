@@ -1,235 +1,365 @@
-# 🚀 Auditoría Automatizada de Clases y Generación de Reportes
+# 🚀 Sistema de Auditoría Automatizada de Contenido Educativo
 
-Este repositorio alberga un sistema integral para la auditoría automatizada de grabaciones de clases, utilizando capacidades avanzadas de inteligencia artificial multimodal y herramientas de procesamiento de video. El proyecto está diseñado para descargar videos de Google Drive, optimizarlos, analizarlos mediante la API de Google Gemini, y generar reportes de auditoría detallados en formatos estructurados (JSON, TXT, CSV) y convertirlos a PDF profesionales.
+Este repositorio alberga un sistema integral para la auditoría automatizada de contenido de video educativo, diseñado para optimizar los procesos de control de calidad en entornos de aprendizaje digital. Utilizando la inteligencia artificial de Google Gemini, integración con Google Drive y herramientas avanzadas de procesamiento de video, el sistema descarga, optimiza, analiza y genera informes detallados en formato PDF a partir de grabaciones de clases.
 
-[![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-Unlicensed-red.svg)](https://choosealicense.com/no-permission/)
-[![Project Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)](https://github.com/yourusername/yourrepo/pulse)
-[![Google Gemini API](https://img.shields.io/badge/Google%20Gemini%20API-2.5%20Flash-orange.svg)](https://ai.google.dev/models/gemini)
-[![FFmpeg](https://img.shields.io/badge/FFmpeg-Required-lightgrey.svg)](https://ffmpeg.org/)
+El objetivo principal es proporcionar una solución escalable y objetiva para evaluar la calidad pedagógica y técnica de las clases, permitiendo a las instituciones educativas identificar rápidamente áreas de mejora y estandarizar la excelencia académica.
 
-## 📋 Tabla de Contenidos
+## 🛡️ Badges
 
-1.  [Arquitectura del Proyecto](#1-arquitectura-del-proyecto)
-    *   [Módulo `main.py`](#módulo-mainpy)
-    *   [Módulo `Create_html_to_PDF.py`](#módulo-create_html_to_pdfpy)
-2.  [Requisitos del Sistema Operativo](#2-requisitos-del-sistema-operativo)
-3.  [Dependencias de Python](#3-dependencias-de-python)
-4.  [Configuración del Entorno](#4-configuración-del-entorno)
-    *   [Variables de Entorno (`.env`)](#variables-de-entorno-env)
-    *   [Credenciales de Google (`credentials_module.json`)](#credenciales-de-google-credentials_modulejson)
-5.  [Uso](#5-uso)
-    *   [Paso 1: Descargar y Auditar Videos](#paso-1-descargar-y-auditar-videos)
-    *   [Paso 2: Generar Reportes HTML y PDF](#paso-2-generar-reportes-html-y-pdf)
-6.  [Ejemplos de Salida](#6-ejemplos-de-salida)
-    *   [Estructura JSON del Reporte de Auditoría](#estructura-json-del-reporte-de-auditoría)
-7.  [Detalles Técnicos y Valor Agregado](#7-detalles-técnicos-y-valor-agregado)
-    *   [Integración con Google Drive (`pydrive2`)](#integración-con-google-drive-pydrive2)
-    *   [Optimización y Procesamiento de Video (`moviepy`, `FFmpeg`)](#optimización-y-procesamiento-de-video-moviepy-ffmpeg)
-    *   [Análisis Multimodal con Google Gemini API](#análisis-multimodal-con-google-gemini-api)
-    *   [Generación de Reportes Estructurados (`pandas`, `xhtml2pdf`)](#generación-de-reportes-estructurados-pandas-xhtml2pdf)
-8.  [Consideraciones de Seguridad](#8-consideraciones-de-seguridad)
+![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat-square&logo=python&logoColor=white)
+![Google Drive](https://img.shields.io/badge/Google%20Drive-Integration-green?style=flat-square&logo=google-drive&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Powered-orange?style=flat-square&logo=google-gemini&logoColor=white)
+![FFmpeg](https://img.shields.io/badge/FFmpeg-Video%20Processing-lightgrey?style=flat-square&logo=ffmpeg&logoColor=white)
+![MoviePy](https://img.shields.io/badge/MoviePy-Video%20Editing-purple?style=flat-square&logo=moviepy&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?style=flat-square&logo=pandas&logoColor=white)
+![PyDrive2](https://img.shields.io/badge/PyDrive2-Google%20Drive%20API-yellowgreen?style=flat-square&logo=google-drive&logoColor=white)
+![XHTML2PDF](https://img.shields.io/badge/XHTML2PDF-PDF%20Generation-red?style=flat-square&logo=pdf&logoColor=white)
+![Project Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)
+
+## 📝 Índice
+
+*   [Introducción](#-introducción)
+*   [Arquitectura del Sistema](#-arquitectura-del-sistema)
+*   [Características Principales](#-características-principales)
+*   [Requisitos del Sistema](#-requisitos-del-sistema)
+    *   [Dependencias de Sistema Operativo](#dependencias-de-sistema-operativo)
+    *   [Dependencias de Python](#dependencias-de-python)
+*   [Configuración del Proyecto](#-configuración-del-proyecto)
+    *   [Configuración de Credenciales de Google Drive](#configuración-de-credenciales-de-google-drive)
+    *   [Configuración de la API de Google Gemini](#configuración-de-la-api-de-google-gemini)
+    *   [Variables de Entorno](#variables-de-entorno)
+*   [Uso del Proyecto](#-uso-del-proyecto)
+    *   [Flujo de Ejecución](#flujo-de-ejecución)
+    *   [Ejecución del Script Principal (`main.py`)](#ejecución-del-script-principal-mainpy)
+    *   [Generación de Informes HTML y PDF (`Create_html_to_PDF.py`)](#generación-de-informes-html-y-pdf-create_html_to_pdfpy)
+*   [Estructura de Datos de Salida](#-estructura-de-datos-de-salida)
+    *   [Ejemplo de Salida JSON](#ejemplo-de-salida-json)
+    *   [Ejemplo de Salida CSV](#ejemplo-de-salida-csv)
+*   [Análisis Técnico y Valor Agregado](#-análisis-técnico-y-valor-agregado)
+    *   [Integración con Google Drive](#integración-con-google-drive)
+    *   [Optimización de Video con FFmpeg y MoviePy](#optimización-de-video-con-ffmpeg-y-moviepy)
+    *   [Auditoría de Contenido con Google Gemini](#auditoría-de-contenido-con-google-gemini)
+    *   [Generación de Informes Profesionales](#generación-de-informes-profesionales)
+*   [Impacto en el Negocio](#-impacto-en-el-negocio)
+    *   [Preguntas de Negocio Abordadas](#preguntas-de-negocio-abordadas)
+    *   [Valor Agregado](#valor-agregado)
+    *   [Permite Medir](#permite-medir)
+    *   [Permite Diagnosticar](#permite-diagnosticar)
+    *   [Permite Resolver y Acotar](#permite-resolver-y-acotar)
+    *   [Permite Optimizar](#permite-optimizar)
+    *   [Permite Estandarizar](#permite-estandarizar)
+    *   [Permite Repensar](#permite-repensar)
+*   [Licencia](#-licencia)
 
 ---
 
-## 1. Arquitectura del Proyecto
+## 💡 Introducción
 
-El sistema se compone de dos módulos principales que operan de forma secuencial para lograr la automatización completa:
+Este proyecto automatiza el proceso de auditoría de videos de clases, transformando la supervisión manual en un flujo de trabajo eficiente y basado en IA. Desde la descarga de videos desde Google Drive hasta la generación de informes PDF estandarizados, el sistema garantiza una evaluación consistente y detallada de la calidad educativa. Es una herramienta esencial para instituciones que buscan escalar sus operaciones de control de calidad sin comprometer la profundidad del análisis.
 
-### Módulo `main.py`
+## 🏗️ Arquitectura del Sistema
 
-Este script es el orquestador principal del proceso de auditoría. Sus funciones clave incluyen:
+El sistema opera a través de un pipeline secuencial y modular, diseñado para procesar videos de clases y generar informes de auditoría completos.
 
-*   **Autenticación y Descarga de Google Drive**: Se conecta a Google Drive utilizando `pydrive2` para listar y descargar videos de una carpeta específica. Implementa reintentos y verificación de tamaño para asegurar descargas completas.
-*   **Optimización de Video**: Comprime y acelera los videos descargados para reducir su tamaño y duración, optimizándolos para la ingesta en la API de Google Gemini. Utiliza `moviepy` como primera opción y `FFmpeg` directo como fallback robusto.
-*   **Análisis Multimodal con Google Gemini**: Sube los videos optimizados a la API de Google Gemini (modelo `gemini-2.5-flash`) para un análisis profundo del contenido de la clase.
-*   **Manejo de Videos Largos**: Si un video excede los límites de tokens de la API, `FFmpeg` lo segmenta automáticamente en partes más pequeñas. Gemini procesa cada segmento, acumulando y refinando el informe de auditoría de forma iterativa.
-*   **Generación de Reportes Estructurados**: La respuesta de Gemini, formateada como JSON, se guarda en archivos `.txt` y se convierte en un `DataFrame` de `pandas` para generar un archivo `.csv` detallado.
+**Pipeline General:**
 
-### Módulo `Create_html_to_PDF.py`
+1.  **Ingesta de Videos:** Los videos de clases son obtenidos desde una carpeta específica en Google Drive.
+2.  **Descarga y Verificación:** Los videos se descargan localmente, con mecanismos de reintento y verificación de integridad.
+3.  **Optimización de Video:** Los videos descargados se comprimen y aceleran para reducir el tamaño y el tiempo de procesamiento por la IA.
+4.  **Auditoría con IA (Google Gemini):** El video optimizado (o sus segmentos) se envía a Google Gemini para un análisis profundo de su contenido pedagógico y técnico, generando un informe estructurado en formato JSON.
+5.  **Persistencia de Datos:** El informe JSON se guarda localmente como archivo `.txt` y se convierte a `.csv` para facilitar el análisis de datos.
+6.  **Estilización con IA (Google Gemini):** El informe JSON (`.txt`) se envía nuevamente a Google Gemini para ser transformado en un documento HTML profesional y estéticamente diseñado.
+7.  **Generación de PDF:** El HTML generado se convierte a un archivo PDF final, listo para su distribución.
 
-Este script se encarga de la presentación final de los reportes de auditoría:
+**Componentes Clave:**
 
-*   **Lectura de Reportes TXT**: Identifica los archivos de reporte `.txt` generados por `main.py`.
-*   **Generación de HTML con Gemini**: Utiliza la API de Google Gemini para transformar el contenido de los reportes `.txt` en código HTML estético y profesional, siguiendo una plantilla CSS predefinida y restricciones de estilo específicas.
-*   **Conversión a PDF**: Convierte los archivos HTML generados en documentos PDF utilizando la librería `xhtml2pdf`, asegurando un formato de reporte final listo para su distribución.
+*   **Módulo de Integración con Google Drive (`main.py`):** Gestiona la autenticación, listado y descarga de archivos de video.
+*   **Módulo de Procesamiento de Video (`main.py`):** Emplea `MoviePy` y `FFmpeg` para la compresión, redimensionamiento, aceleración y, si es necesario, segmentación de videos.
+*   **Módulo de Auditoría con IA (`main.py`):** Interactúa con la API de Google Gemini (`gemini-2.5-flash`) para analizar el contenido del video, utilizando prompts estructurados y manejo de contexto para videos largos.
+*   **Módulo de Generación de Datos Estructurados (`main.py`):** Procesa la respuesta JSON de Gemini y la guarda en formatos `.txt` y `.csv`.
+*   **Módulo de Generación de Informes Profesionales (`Create_html_to_PDF.py`):** Utiliza Google Gemini para estilizar el informe de texto en HTML y `xhtml2pdf` para la conversión final a PDF.
 
-## 2. Requisitos del Sistema Operativo
+## ✨ Características Principales
 
-Para el correcto funcionamiento del proyecto, es indispensable tener instaladas las siguientes herramientas a nivel de sistema operativo:
+*   **Automatización Completa:** Desde la descarga de videos hasta la generación de informes PDF, el proceso es totalmente automatizado.
+*   **Integración Robusta con Google Drive:** Descarga segura y verificada de videos desde carpetas específicas.
+*   **Optimización Inteligente de Video:** Compresión y aceleración de videos para reducir costos y tiempos de procesamiento de la IA, con un robusto sistema de fallback entre `MoviePy` y `FFmpeg`.
+*   **Auditoría de Contenido Basada en IA:** Utiliza Google Gemini para un análisis profundo de la claridad del profesor, dominio del tema, uso de herramientas, participación y manejo del tiempo.
+*   **Manejo de Videos Extensos:** Capacidad para segmentar videos largos y procesarlos iterativamente con la IA, manteniendo la coherencia del informe final mediante un mecanismo de contexto acumulado.
+*   **Informes Estructurados y Accionables:** Genera informes en formato JSON y CSV, facilitando el análisis programático y la integración con otros sistemas.
+*   **Generación de Informes Profesionales en PDF:** Transforma los datos de auditoría en documentos HTML estéticamente agradables y luego en PDFs listos para su presentación, con un diseño coherente y profesional.
+*   **Manejo de Errores y Reintentos:** Incluye lógica para reintentar descargas fallidas y manejar límites de cuota de la API de Gemini.
 
-*   **FFmpeg**: Es la herramienta fundamental para el procesamiento de video (compresión, aceleración, segmentación).
-    *   **Instalación (Linux/macOS)**: `sudo apt-get install ffmpeg` o `brew install ffmpeg`
-    *   **Instalación (Windows)**: Descargar el ejecutable desde [ffmpeg.org](https://ffmpeg.org/download.html) y añadirlo a la variable de entorno PATH del sistema. La librería `imageio-ffmpeg` ayuda a localizarlo, pero `ffmpeg` debe estar disponible en el sistema.
+## ⚙️ Requisitos del Sistema
 
-## 3. Dependencias de Python
+### Dependencias de Sistema Operativo
 
-Se recomienda instalar las dependencias en un entorno virtual.
+*   **FFmpeg:** Es una herramienta fundamental para la manipulación de video. Se utiliza para la compresión, aceleración y segmentación de videos.
+    *   **Instalación (Linux/macOS):**
+        ```bash
+        sudo apt update && sudo apt install ffmpeg # Debian/Ubuntu
+        brew install ffmpeg # macOS (Homebrew)
+        ```
+    *   **Instalación (Windows):** Descargue el ejecutable desde el [sitio oficial de FFmpeg](https://ffmpeg.org/download.html) y asegúrese de que la ruta al ejecutable `ffmpeg.exe` esté incluida en la variable de entorno PATH de su sistema.
 
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
-pip install -r requirements.txt
-```
+### Dependencias de Python
 
-El archivo `requirements.txt` debe contener las siguientes librerías:
-
-```
-google-generativeai
-python-dotenv
-pydrive2
-moviepy
-imageio-ffmpeg
-pandas
-xhtml2pdf
-oauth2client # Necesario para pydrive2 y gspread (si se usa)
-gspread # Importado en main.py, aunque no usado en la lógica actual, se mantiene por si se extiende.
-```
-
-## 4. Configuración del Entorno
-
-### Variables de Entorno (`.env`)
-
-Cree un archivo `.env` en la raíz del proyecto con las siguientes variables:
-
-```ini
-API_KEY_GEMINI_PRO_1.5="TU_API_KEY_DE_GOOGLE_GEMINI"
-carpeta_drive="ID_DE_TU_CARPETA_DE_GOOGLE_DRIVE"
-```
-
-*   **`API_KEY_GEMINI_PRO_1.5`**: Su clave de API para acceder a Google Gemini. Puede obtenerla desde [Google AI Studio](https://aistudio.google.com/app/apikey).
-*   **`carpeta_drive`**: El ID de la carpeta de Google Drive donde se encuentran los videos a auditar. Este ID se encuentra en la URL de la carpeta (ej. `https://drive.google.com/drive/folders/ESTE_ES_EL_ID`).
-
-### Credenciales de Google (`credentials_module.json`)
-
-Para interactuar con Google Drive, el proyecto requiere un archivo de credenciales de cuenta de servicio.
-
-1.  **Crear un Proyecto en Google Cloud Console**: Vaya a [console.cloud.google.com](https://console.cloud.google.com/) y cree un nuevo proyecto.
-2.  **Habilitar APIs**: Habilite las APIs de `Google Drive API` y `Google Sheets API` (si planea usar `gspread` en el futuro) para su proyecto.
-3.  **Crear Cuenta de Servicio**:
-    *   Navegue a "IAM y administración" -> "Cuentas de servicio".
-    *   Cree una nueva cuenta de servicio.
-    *   Asigne un rol que permita el acceso a Google Drive (ej. "Lector de Drive" o "Editor de Drive" si necesita subir archivos).
-4.  **Generar Clave JSON**:
-    *   Edite la cuenta de servicio recién creada.
-    *   Vaya a la sección "Claves" y haga clic en "Añadir clave" -> "Crear nueva clave".
-    *   Seleccione "JSON" como tipo de clave y descárguela.
-5.  **Renombrar y Ubicar**: Renombre el archivo JSON descargado a `credentials_module.json` y colóquelo en la raíz de su proyecto.
-6.  **Compartir Carpeta de Drive**: Comparta la carpeta de Google Drive (`carpeta_drive`) con la dirección de correo electrónico de la cuenta de servicio (ej. `nombre-cuenta-servicio@proyecto-id.iam.gserviceaccount.com`).
-
-## 5. Uso
-
-El proceso se ejecuta en dos fases principales.
-
-### Paso 1: Descargar y Auditar Videos
-
-Ejecute el script `main.py` para iniciar la descarga, optimización y auditoría de los videos.
+Se recomienda el uso de un entorno virtual para gestionar las dependencias.
 
 ```bash
-python main.py
+pip install pandas gspread oauth2client pydrive2 python-dotenv moviepy imageio-ffmpeg google-generativeai xhtml2pdf
 ```
 
-Este script realizará las siguientes acciones:
-1.  Se autenticará con Google Drive.
-2.  Listará los videos en la carpeta especificada.
-3.  Descargará cada video, verificando la integridad de la descarga.
-4.  Optimizará el video (compresión y aceleración).
-5.  Subirá el video (o sus segmentos) a Google Gemini para análisis.
-6.  Generará un reporte de auditoría en formato JSON, TXT y CSV para cada video.
-7.  Eliminará los archivos temporales de video y los archivos subidos a Gemini para optimizar el almacenamiento y los costos.
+## 🛠️ Configuración del Proyecto
 
-### Paso 2: Generar Reportes HTML y PDF
+### Configuración de Credenciales de Google Drive
 
-Una vez que `main.py` haya generado los archivos `.txt` de auditoría, ejecute `Create_html_to_PDF.py` para convertirlos en reportes HTML y PDF.
+Este proyecto utiliza `pydrive2` para interactuar con Google Drive. Necesitará un archivo de credenciales para autenticarse.
 
-```bash
-python Create_html_to_PDF.py
-```
+1.  **Crear un Proyecto en Google Cloud Console:**
+    *   Vaya a [Google Cloud Console](https://console.cloud.google.com/).
+    *   Cree un nuevo proyecto o seleccione uno existente.
+2.  **Habilitar la API de Google Drive:**
+    *   En el menú de navegación, vaya a "APIs y servicios" > "Biblioteca".
+    *   Busque "Google Drive API" y habilítela.
+3.  **Crear Credenciales de OAuth 2.0 (ID de Cliente de Escritorio):**
+    *   Vaya a "APIs y servicios" > "Credenciales".
+    *   Haga clic en "Crear credenciales" > "ID de cliente de OAuth".
+    *   Seleccione "Aplicación de escritorio" como tipo de aplicación.
+    *   Asigne un nombre y haga clic en "Crear".
+    *   Descargue el archivo JSON resultante.
+4.  **Renombrar y Colocar el Archivo:**
+    *   Renombre el archivo JSON descargado a `credentials_module.json`.
+    *   Colóquelo en la raíz de su proyecto.
 
-Este script:
-1.  Leerá todos los archivos `Reporte_Auditoria_*.txt`.
-2.  Utilizará Google Gemini para transformar el texto en HTML estilizado.
-3.  Convertirá el HTML resultante en un archivo PDF.
+La primera vez que ejecute el script `main.py`, se abrirá una ventana del navegador para que autorice el acceso a su cuenta de Google Drive. Una vez autorizado, `pydrive2` guardará un token de acceso en `credentials_module.json` para futuras autenticaciones.
 
-## 6. Ejemplos de Salida
+### Configuración de la API de Google Gemini
 
-### Estructura JSON del Reporte de Auditoría
+El proyecto requiere una clave de API para Google Gemini.
 
-El módulo `main.py` genera un archivo `.txt` y `.csv` con la siguiente estructura JSON como base:
+1.  **Obtener una Clave de API:**
+    *   Visite [Google AI Studio](https://aistudio.google.com/app/apikey) o la consola de Google Cloud para generar una clave de API para Gemini.
+2.  **Configurar la Variable de Entorno:**
+    *   Cree un archivo `.env` en la raíz de su proyecto.
+    *   Agregue su clave de API de Gemini de la siguiente manera:
+        ```dotenv
+        API_KEY_GEMINI_PRO_1.5="TU_CLAVE_API_DE_GEMINI"
+        ```
+    *   **Nota:** El nombre de la variable `API_KEY_GEMINI_PRO_1.5` es el que se espera en el código.
+
+### Variables de Entorno
+
+Además de la clave de API de Gemini, necesita especificar la carpeta de Google Drive de donde se descargarán los videos.
+
+*   En el archivo `.env`, agregue la siguiente variable:
+    ```dotenv
+    carpeta_drive="ID_DE_LA_CARPETA_DE_GOOGLE_DRIVE"
+    ```
+    *   Para obtener el ID de una carpeta de Google Drive, abra la carpeta en su navegador. El ID es la parte de la URL después de `/folders/` (ej. `https://drive.google.com/drive/folders/ESTE_ES_EL_ID`).
+
+## 🚀 Uso del Proyecto
+
+### Flujo de Ejecución
+
+El sistema está diseñado para ejecutarse en dos fases principales:
+
+1.  **Fase de Auditoría y Generación de Datos (`main.py`):** Descarga videos, los procesa con IA y genera informes JSON/CSV.
+2.  **Fase de Generación de Informes PDF (`Create_html_to_PDF.py`):** Toma los informes JSON generados y los convierte en documentos HTML estilizados y luego en PDFs.
+
+### Ejecución del Script Principal (`main.py`)
+
+Este script es el encargado de la auditoría de los videos.
+
+1.  Asegúrese de que todas las [dependencias](#dependencias-de-python) estén instaladas y las [variables de entorno](#variables-de-entorno) configuradas.
+2.  Ejecute el script desde la terminal:
+    ```bash
+    python main.py
+    ```
+3.  El script:
+    *   Se autenticará con Google Drive.
+    *   Listará y descargará los videos de la carpeta especificada.
+    *   Optimizará cada video.
+    *   Subirá el video (o sus partes) a Google Gemini para su auditoría.
+    *   Generará un archivo `Reporte_Auditoria_NOMBRE_VIDEO.txt` (JSON) y `Reporte_Auditoria_NOMBRE_VIDEO.csv` por cada video auditado.
+    *   Eliminará los archivos temporales de video.
+
+### Generación de Informes HTML y PDF (`Create_html_to_PDF.py`)
+
+Una vez que `main.py` ha generado los archivos `.txt` con los informes JSON, este script los transformará en informes PDF profesionales.
+
+1.  Asegúrese de que la [API de Google Gemini](#configuración-de-la-api-de-google-gemini) esté configurada en su archivo `.env`.
+2.  Ejecute el script desde la terminal:
+    ```bash
+    python Create_html_to_PDF.py
+    ```
+3.  El script:
+    *   Buscará todos los archivos `Reporte_Auditoria_*.txt` en el directorio actual.
+    *   Para cada archivo, lo subirá a Google Gemini.
+    *   Solicitará a Gemini que convierta el contenido del informe en un código HTML estilizado, siguiendo las directrices de diseño predefinidas.
+    *   Guardará el HTML generado como `Reporte_Auditoria_NOMBRE_VIDEO.html`.
+    *   Convertirá el archivo HTML a `Reporte_Auditoria_NOMBRE_VIDEO.pdf` utilizando `xhtml2pdf`.
+    *   Eliminará los archivos temporales de Gemini.
+
+## 📊 Estructura de Datos de Salida
+
+El proceso de auditoría genera datos estructurados en formato JSON, que luego se pueden exportar a CSV para un análisis tabular.
+
+### Ejemplo de Salida JSON
+
+El archivo `Reporte_Auditoria_NOMBRE_VIDEO.txt` contendrá un objeto JSON con la siguiente estructura:
 
 ```json
 {
-  "resumen_clase": "La clase se centró en la introducción a la programación en Python, cubriendo variables, tipos de datos y estructuras de control básicas.",
-  "objetivo_alcanzado": "Sí - Se cubrieron todos los temas planificados y se realizaron ejercicios prácticos.",
+  "resumen_clase": "Descripción concisa de los temas cubiertos en la clase, incluyendo los puntos principales y el enfoque pedagógico.",
+  "objetivo_alcanzado": "Sí - El objetivo de la lección fue claramente alcanzado, con una demostración efectiva de los conceptos clave.",
   "puntos_fuertes": [
-    "Claridad en la explicación de conceptos complejos.",
-    "Uso efectivo de ejemplos de código en tiempo real.",
-    "Fomento de la participación activa con preguntas abiertas."
+    "Claridad excepcional en la explicación de conceptos complejos.",
+    "Uso efectivo de ejemplos prácticos y analogías para facilitar la comprensión.",
+    "Fomento activo de la participación estudiantil mediante preguntas abiertas.",
+    "Excelente manejo de las herramientas digitales para la presentación de contenido."
   ],
   "oportunidades_mejora": [
-    "Algunas pausas prolongadas al buscar ejemplos.",
-    "La velocidad de la presentación fue inconsistente en ciertos segmentos.",
-    "No se utilizó una herramienta interactiva para encuestas rápidas."
+    "Algunas transiciones entre temas fueron abruptas, afectando ligeramente el flujo.",
+    "Podría integrar más actividades interactivas para reforzar el aprendizaje práctico.",
+    "El ritmo en la sección final fue un poco acelerado, dejando menos tiempo para preguntas."
   ],
   "recomendaciones_accionables": [
-    "Preparar ejemplos de código con antelación para evitar pausas.",
-    "Implementar una herramienta de votación rápida para evaluar la comprensión."
+    "Planificar transiciones más suaves entre los módulos temáticos.",
+    "Incorporar un breve ejercicio práctico o un quiz al final de cada sección principal."
   ],
-  "nivel_participacion": "Alta - Los alumnos hicieron preguntas pertinentes y respondieron a los ejercicios propuestos.",
-  "manejo_del_tiempo": "Adecuado - El tiempo se distribuyó equitativamente entre explicación teórica y práctica, aunque el cierre fue un poco apresurado.",
+  "nivel_participacion": "Alta - Los alumnos interactuaron activamente, haciendo preguntas pertinentes y respondiendo a los planteamientos del profesor.",
+  "manejo_del_tiempo": "Adecuado - El tiempo se distribuyó de manera equilibrada entre la exposición teórica, ejemplos y un espacio para preguntas, aunque el final fue un poco ajustado.",
   "herramientas_utilizadas": [
     "Presentación de diapositivas (Google Slides)",
-    "IDE en línea (Replit)",
-    "Pizarrón virtual (Jamboard)"
+    "Pizarrón virtual (Jamboard)",
+    "Encuestas rápidas (Mentimeter)"
   ],
   "incidencias_notables": [
-    "Breve interrupción de audio al inicio (30 segundos).",
-    "Ninguna"
+    "Breve interrupción de audio al inicio debido a un micrófono mal configurado (resuelto rápidamente)."
   ],
-  "calificacion_pedagogica": 85,
-  "calificacion_tecnica": 90,
-  "comentario_final": "El profesor demostró un excelente dominio del tema y una metodología efectiva. Se sugiere optimizar la fluidez en las transiciones y explorar herramientas interactivas para maximizar el engagement."
+  "calificacion_pedagogica": 92,
+  "calificacion_tecnica": 88,
+  "comentario_final": "La clase demostró un alto nivel de preparación y ejecución pedagógica. Se recomienda un enfoque en la fluidez de las transiciones y la integración de más elementos interactivos para maximizar la retención del aprendizaje."
 }
 ```
 
-El archivo `.csv` representará esta estructura en formato tabular, con las listas (`puntos_fuertes`, `oportunidades_mejora`, etc.) unidas por saltos de línea dentro de una misma celda.
+### Ejemplo de Salida CSV
 
-## 7. Detalles Técnicos y Valor Agregado
+El archivo `Reporte_Auditoria_NOMBRE_VIDEO.csv` presentará los datos del JSON en un formato tabular, con las listas concatenadas por saltos de línea para mantener la información en una sola celda.
 
-### Integración con Google Drive (`pydrive2`)
+```csv
+resumen_clase,objetivo_alcanzado,puntos_fuertes,oportunidades_mejora,recomendaciones_accionables,nivel_participacion,manejo_del_tiempo,herramientas_utilizadas,incidencias_notables,calificacion_pedagogica,calificacion_tecnica,comentario_final
+"Descripción concisa de los temas cubiertos en la clase, incluyendo los puntos principales y el enfoque pedagógico.","Sí - El objetivo de la lección fue claramente alcanzado, con una demostración efectiva de los conceptos clave.","Claridad excepcional en la explicación de conceptos complejos.\nUso efectivo de ejemplos prácticos y analogías para facilitar la comprensión.\nFomento activo de la participación estudiantil mediante preguntas abiertas.\nExcelente manejo de las herramientas digitales para la presentación de contenido.","Algunas transiciones entre temas fueron abruptas, afectando ligeramente el flujo.\nPodría integrar más actividades interactivas para reforzar el aprendizaje práctico.\nEl ritmo en la sección final fue un poco acelerado, dejando menos tiempo para preguntas.","Planificar transiciones más suaves entre los módulos temáticos.\nIncorporar un breve ejercicio práctico o un quiz al final de cada sección principal.","Alta - Los alumnos interactuaron activamente, haciendo preguntas pertinentes y respondiendo a los planteamientos del profesor.","Adecuado - El tiempo se distribuyó de manera equilibrada entre la exposición teórica, ejemplos y un espacio para preguntas, aunque el final fue un poco ajustado.","Presentación de diapositivas (Google Slides)\nPizarrón virtual (Jamboard)\nEncuestas rápidas (Mentimeter)","Breve interrupción de audio al inicio debido a un micrófono mal configurado (resuelto rápidamente).",92,88,"La clase demostró un alto nivel de preparación y ejecución pedagógica. Se recomienda un enfoque en la fluidez de las transiciones y la integración de más elementos interactivos para maximizar la retención del aprendizaje."
+```
 
-*   **Robustez**: `pydrive2` ofrece una interfaz programática robusta y segura para interactuar con Google Drive. La implementación incluye lógica de reintentos y verificación de tamaño de archivo (`os.path.getsize` vs `fileSize` de Drive) para garantizar descargas completas y manejar fallos de red o API.
-*   **Autenticación**: Utiliza `oauth2client.service_account.ServiceAccountCredentials` a través de `GoogleAuth` de `pydrive2` para una autenticación no interactiva, ideal para flujos de trabajo automatizados en servidores o scripts.
+## 🔬 Análisis Técnico y Valor Agregado
 
-### Optimización y Procesamiento de Video (`moviepy`, `FFmpeg`)
+Este proyecto integra diversas tecnologías para construir un pipeline de auditoría robusto y eficiente. La selección de cada herramienta se basa en su capacidad para aportar valor técnico y resolver desafíos específicos.
 
-*   **Estrategia de Compresión**: Los videos se optimizan para reducir el tamaño y la duración, lo cual es crucial para cumplir con los límites de tamaño y velocidad de procesamiento de la API de Gemini.
-    *   **Redimensionamiento**: `height=240` (o `scale=-2:360` con FFmpeg) reduce drásticamente la resolución sin perder la inteligibilidad del contenido educativo.
-    *   **Aceleración**: `MultiplySpeed(1.5)` (o `setpts=0.666667*PTS, atempo=1.5` con FFmpeg) acelera el video y el audio, permitiendo un análisis más rápido de clases extensas.
-    *   **`fps=0.5`**: Reduce la tasa de fotogramas a un nivel mínimo aceptable para el análisis de contenido estático o semidinámico, optimizando aún más el tamaño.
-    *   **`preset='ultrafast'`**: Prioriza la velocidad de codificación sobre la calidad, adecuado para videos destinados a análisis por IA.
-    *   **`audio_bitrate='32k'`, `ac='1'`**: Reduce la calidad y convierte el audio a mono, minimizando el tamaño del componente de audio.
-*   **Resiliencia**: La implementación prioriza `moviepy` por su API de alto nivel, pero incluye un fallback directo a `FFmpeg` a través de `subprocess` y `imageio-ffmpeg`. Esta estrategia asegura que el procesamiento de video sea robusto incluso si `moviepy` encuentra problemas específicos de códecs o configuraciones, aprovechando la eficiencia y fiabilidad de `FFmpeg`.
-*   **Segmentación Inteligente**: Para videos que exceden los límites de tokens de la API de Gemini, `FFmpeg` se utiliza para segmentar el video en partes más pequeñas (`-segment_time '1500'` para segmentos de 25 minutos). Esto permite procesar clases de larga duración de forma incremental.
+### Integración con Google Drive
 
-### Análisis Multimodal con Google Gemini API
+*   **Tecnología:** `pydrive2`
+*   **Valor Agregado:** `pydrive2` proporciona una interfaz Pythonic para la API de Google Drive, simplificando la autenticación (OAuth 2.0), la navegación de archivos y la descarga. La implementación incluye lógica de reintento y verificación del tamaño del archivo (`os.path.getsize` vs `archivo['fileSize']`) para asegurar descargas completas y fiables, mitigando problemas de red o de la API. Esto es crucial para garantizar que el material fuente para la auditoría sea íntegro.
 
-*   **Modelo `gemini-2.5-flash`**: Elegido por su equilibrio entre rendimiento, velocidad y costo, siendo ideal para tareas de análisis de video donde la latencia es un factor.
-*   **Análisis Multimodal**: La API de Gemini permite el análisis directo de contenido de video junto con prompts textuales, lo que es fundamental para el rol de "Auditor de Calidad Educativa".
-*   **Output Estructurado (JSON)**: La `generation_config` se establece para forzar la respuesta en formato `application/json`, garantizando la consistencia y facilidad de parseo de los reportes.
-*   **Dynamic Prompting para Videos Largos**: La función `generar_prompt_dinamico` permite a Gemini mantener un "contexto acumulado" de las partes anteriores del video. Esto asegura que el informe final sea coherente y global, fusionando los hallazgos de cada segmento en un único reporte unificado.
-*   **Gestión de Tokens y Costos**: Se realiza un cálculo de tokens (`funcionalidad_gemini.count_tokens`) para prever el consumo. La segmentación de videos y la eliminación de archivos de la nube (`genai.delete_file`) son prácticas clave para optimizar los costos de la API.
-*   **Manejo de Rate Limits**: Se implementa un mecanismo de reintentos con `time.sleep` para manejar errores `429` (Too Many Requests) o `Quota` de la API, mejorando la robustez del sistema en entornos de alta demanda.
+### Optimización de Video con FFmpeg y MoviePy
 
-### Generación de Reportes Estructurados (`pandas`, `xhtml2pdf`)
+La optimización de video es un paso crítico para reducir los costos y el tiempo de procesamiento de la IA, ya que los modelos de lenguaje multimodal consumen recursos en función de la duración y calidad del video.
 
-*   **`pandas` para CSV**: La conversión del JSON de Gemini a un `DataFrame` de `pandas` facilita la generación de archivos CSV, permitiendo un análisis tabular posterior en herramientas como Excel o Google Sheets. La lógica de unir listas con saltos de línea (`"\n".join(v)`) es clave para mantener la legibilidad en celdas CSV.
-*   **`xhtml2pdf` para PDF**: A diferencia de `pdfkit` (que a menudo requiere `wkhtmltopdf` externo), `xhtml2pdf` (`pisa`) es una solución puramente Python para convertir HTML a PDF. Esto simplifica la implementación y reduce las dependencias a nivel de sistema operativo para la fase de generación de reportes.
-*   **HTML Dinámico con Gemini**: La capacidad de Gemini para generar HTML a partir de un prompt y una plantilla CSS permite una personalización flexible y profesional de los reportes, sin necesidad de mantener plantillas HTML estáticas complejas. El prompt guía a Gemini para usar CSS básico y evitar frameworks modernos, asegurando compatibilidad con `xhtml2pdf`.
+*   **Tecnología:** `MoviePy` (con `imageio-ffmpeg` como backend) y `FFmpeg` (directamente vía `subprocess`).
+*   **Valor Agregado:**
+    *   **Reducción de Costos y Tiempo:** Al reducir la resolución (`height=240` o `scale=-2:360`), acelerar la reproducción (`MultiplySpeed, 1.5` o `setpts=0.666667*PTS, atempo=1.5`), y disminuir el `fps` (`0.5`), se minimiza la cantidad de datos que la IA debe procesar, optimizando el consumo de tokens y el tiempo de respuesta.
+    *   **MoviePy:** Ofrece una abstracción de alto nivel para la edición de video, facilitando operaciones como redimensionamiento y cambio de velocidad con una sintaxis intuitiva. Es útil para prototipado rápido.
+    *   **FFmpeg (Directo):** La implementación de `subprocess.run` con `FFmpeg` es un mecanismo de *fallback* robusto. `FFmpeg` es el estándar de la industria para el procesamiento de medios, conocido por su eficiencia y control granular. Cuando `MoviePy` (que a veces puede ser menos estable o más lento para ciertas operaciones) falla, la llamada directa a `FFmpeg` garantiza que la optimización se complete de manera fiable. Los parámetros como `-filter_complex`, `-preset ultrafast`, `-b:a 32k`, y `-ac 1` están ajustados para una compresión máxima con una calidad suficiente para el análisis de contenido (no para visualización de alta fidelidad).
+    *   **Segmentación de Videos Largos:** Para videos que exceden los límites de tokens de Gemini, `FFmpeg` se utiliza para segmentar el video en partes más pequeñas (`-segment_time 1500` para 25 minutos por segmento). Esto permite procesar videos de cualquier duración, superando las limitaciones de la API.
 
-## 8. Consideraciones de Seguridad
+### Auditoría de Contenido con Google Gemini
 
-*   **Credenciales**: Nunca se deben exponer las claves de API o credenciales de servicio directamente en el código fuente o en el repositorio. El uso de archivos `.env` y `credentials_module.json` gestionados localmente es una práctica de seguridad estándar.
-*   **Acceso a Google Drive**: La cuenta de servicio debe tener los permisos mínimos necesarios para la operación (ej. solo lectura si no se requiere subir archivos).
-*   **Datos Sensibles**: El sistema está diseñado para auditar contenido educativo. Asegúrese de que el contenido de los videos cumpla con las políticas de privacidad y uso de datos de su organización.
+El corazón del sistema reside en la capacidad de la IA para analizar el contenido pedagógico y técnico de las clases.
+
+*   **Tecnología:** `google.generativeai` con el modelo `gemini-2.5-flash`.
+*   **Valor Agregado:**
+    *   **Análisis Multimodal Avanzado:** `gemini-2.5-flash` es un modelo multimodal optimizado para velocidad y eficiencia, ideal para procesar videos y extraer información relevante sobre la dinámica de la clase.
+    *   **Prompts Estructurados y `system_instruction`:** La definición de un `system_instruction` (`Eres un Auditor de Calidad Educativa...`) y un `prompt_final` detallado que exige una salida JSON específica, asegura que la IA se adhiera a un rol y formato predefinidos. Esto es crucial para la consistencia y la parseabilidad de los informes.
+    *   **Manejo de Contexto para Videos Segmentados (RAG-like):** La función `generar_prompt_dinamico` implementa un mecanismo de "memoria" o contexto acumulado. Para videos segmentados, el informe JSON generado por un fragmento anterior se alimenta de nuevo a la IA como `contexto_anterior` para el siguiente fragmento. Esto permite a Gemini construir un informe unificado y coherente a lo largo de todo el video, superando las limitaciones de la ventana de contexto de la API para entradas muy largas.
+    *   **Manejo de Rate Limits:** La lógica de reintento con `time.sleep(30)` para errores `429` (Quota Exceeded) garantiza la robustez del proceso frente a las limitaciones de la API, evitando fallos en la auditoría de videos extensos o en lotes.
+    *   **Métricas Cuantitativas y Cualitativas:** La estructura JSON solicita calificaciones numéricas (`calificacion_pedagogica`, `calificacion_tecnica`) junto con descripciones cualitativas detalladas, proporcionando una visión holística.
+
+### Generación de Informes Profesionales
+
+La presentación de los resultados es tan importante como el análisis en sí.
+
+*   **Tecnología:** `google.generativeai` (para HTML) y `xhtml2pdf` (para PDF).
+*   **Valor Agregado:**
+    *   **Estilización con IA:** Utilizar Gemini para convertir el JSON en HTML (`PROMPT` en `Create_html_to_PDF.py`) permite una generación dinámica de informes con un diseño profesional y estético, sin necesidad de plantillas HTML estáticas complejas. La estricta directriz de **no usar flexbox, CSS grid, ni variables :root** en el prompt asegura la compatibilidad con `xhtml2pdf` y evita complejidades de renderizado que podrían surgir con CSS moderno.
+    *   **Consistencia de Marca:** La `Plantilla_HTML` (CSS) incrustada en el prompt guía a Gemini para usar colores y fuentes específicos (`Tahoma`, paleta naranja), asegurando que los informes finales se alineen con la identidad visual de la compañía.
+    *   **Generación de PDF Robusta:** `xhtml2pdf` (`pisa.CreatePDF`) es una biblioteca Python fiable para convertir HTML y CSS a PDF. A diferencia de `pdfkit` (que a menudo requiere `wkhtmltopdf` como dependencia externa de SO), `xhtml2pdf` es una solución más autocontenida en Python, lo que simplifica la implementación y el despliegue. Produce documentos PDF de alta calidad, listos para su distribución o archivo.
+
+## 📈 Impacto en el Negocio
+
+Este sistema de auditoría automatizada de contenido educativo no es solo una herramienta técnica, sino una palanca estratégica para la mejora continua y la eficiencia operativa en instituciones educativas.
+
+### Preguntas de Negocio Abordadas
+
+*   ¿Cómo podemos asegurar una calidad de enseñanza consistente en todas nuestras clases grabadas?
+*   ¿Qué puntos específicos necesitan mejorar nuestros instructores para optimizar la experiencia de aprendizaje?
+*   ¿Es posible escalar nuestro proceso de control de calidad sin incurrir en costos prohibitivos de personal?
+*   ¿Estamos aprovechando al máximo las herramientas digitales en nuestras clases?
+*   ¿Cómo podemos obtener retroalimentación objetiva y estandarizada sobre el desempeño docente?
+
+### Valor Agregado
+
+El sistema proporciona un valor agregado significativo al transformar un proceso manual, subjetivo y lento en uno automatizado, objetivo y escalable. Libera a los auditores humanos para que se concentren en tareas de mayor valor estratégico, como el desarrollo de programas de capacitación o la mentoría individualizada, en lugar de la revisión rutinaria de videos. La consistencia en la evaluación y la rapidez en la entrega de informes permiten una toma de decisiones ágil y basada en datos.
+
+### Permite Medir
+
+*   **Calidad Pedagógica y Técnica:** Cuantifica el desempeño del instructor con calificaciones numéricas (0-100), complementadas con descripciones cualitativas.
+*   **Nivel de Participación:** Evalúa la interacción de los alumnos (Alta/Media/Baja) y describe su dinámica.
+*   **Manejo del Tiempo:** Mide la eficiencia en la distribución del tiempo de la clase.
+*   **Uso de Herramientas:** Registra las herramientas digitales utilizadas, permitiendo un seguimiento de la adopción tecnológica.
+*   **Incidencias:** Identifica y registra problemas técnicos o interrupciones, cuantificando su frecuencia y tipo.
+*   **Puntos Fuertes y Oportunidades:** Proporciona listas estructuradas de aciertos y áreas de mejora, facilitando el análisis de tendencias.
+
+### Permite Diagnosticar
+
+*   **Debilidades Específicas del Instructor:** Identifica patrones de fallos (ej. "muletillas", explicaciones confusas, falta de interacción) que requieren atención.
+*   **Ineficiencias Metodológicas:** Diagnostica si ciertas metodologías no están siendo efectivas o si el ritmo de la clase es inadecuado.
+*   **Problemas Técnicos Recurrentes:** Señala incidencias como fallas de conexión o problemas de audio, que pueden indicar necesidades de infraestructura o capacitación técnica.
+*   **Brechas en la Adopción Tecnológica:** Revela si las herramientas digitales no se están utilizando o si su uso es subóptimo.
+*   **Necesidades de Capacitación:** Agrega datos para identificar áreas comunes de mejora en el cuerpo docente, informando el diseño de programas de desarrollo profesional.
+
+### Permite Resolver y Acotar
+
+*   **Recomendaciones Accionables:** Proporciona sugerencias concretas y directas para que los profesores mejoren en su próxima clase.
+*   **Foco en la Mejora:** Permite a los directores académicos acotar las áreas de mejora para cada instructor, haciendo la retroalimentación más efectiva y menos abrumadora.
+*   **Intervención Temprana:** Al identificar rápidamente problemas, se pueden implementar soluciones antes de que afecten a un gran número de estudiantes.
+*   **Optimización de Recursos:** Dirige los recursos de capacitación y soporte técnico hacia donde son más necesarios.
+
+### Permite Optimizar
+
+*   **Proceso de QA:** Reduce drásticamente el tiempo y el costo asociados con la auditoría manual de videos.
+*   **Desarrollo Docente:** Optimiza la efectividad de los programas de capacitación al basarlos en datos reales y necesidades identificadas.
+*   **Experiencia del Estudiante:** Mejora indirectamente la calidad de la enseñanza, lo que se traduce en una mejor experiencia de aprendizaje y mayores tasas de retención.
+*   **Uso de Ancho de Banda y Almacenamiento:** La compresión de videos para la IA optimiza el uso de recursos de red y almacenamiento en la nube.
+*   **Escalabilidad:** Permite auditar un volumen masivo de clases sin un aumento lineal en el personal de QA.
+
+### Permite Estandarizar
+
+*   **Criterios de Evaluación:** Establece un conjunto uniforme y objetivo de criterios de evaluación aplicados por la IA, eliminando la subjetividad humana.
+*   **Formato de Informes:** Genera informes estandarizados en JSON, CSV y PDF, facilitando la comparación, el archivo y la integración con sistemas de gestión académica.
+*   **Nivel de Calidad:** Define un umbral de calidad consistente para todas las clases, asegurando que se cumplan los estándares institucionales.
+*   **Procesos Internos:** Estandariza el flujo de trabajo de control de calidad, desde la ingesta de videos hasta la entrega de informes.
+
+### Permite Repensar
+
+*   **Estrategias Pedagógicas Institucionales:** Los datos agregados pueden revelar la necesidad de repensar y adaptar las metodologías de enseñanza a nivel institucional, promoviendo enfoques más efectivos y participativos.
+*   **Diseño Curricular:** Si los informes muestran consistentemente dificultades en ciertos temas o la falta de uso de herramientas específicas, puede llevar a una revisión del diseño de los cursos.
+*   **Programas de Formación Docente:** Permite rediseñar los programas de desarrollo profesional para abordar las competencias más críticas y las deficiencias comunes identificadas por la IA.
+*   **Infraestructura Tecnológica:** La recurrencia de incidencias técnicas puede impulsar una reevaluación y mejora de la infraestructura de red, plataformas LMS o equipos de grabación.
+*   **Modelo de Evaluación de Desempeño:** El sistema puede integrar nuevas métricas o ajustar las existentes, permitiendo una evolución continua del modelo de evaluación docente.
+*   **Innovación en el Aula:** Al liberar tiempo de los equipos de QA y proporcionar insights claros, se fomenta la experimentación con nuevas herramientas y enfoques pedagógicos, sabiendo que su impacto será medido y reportado.
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Consulte el archivo `LICENSE` para obtener más detalles.
