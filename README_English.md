@@ -1,211 +1,239 @@
-¡Excelente! Aquí tienes la traducción al inglés de la documentación, manteniendo la literalidad donde es apropiado, respetando los nombres de las variables y explicando su propósito en el contexto anglosajón:
+¡Absolutamente! Como Senior Data Analyst & Automation Analyst y traductor experto en lenguaje técnico, he generado la traducción al inglés de tu documentación, manteniendo la literalidad del mensaje, respetando los nombres de las variables y adaptando la gramática al contexto anglosajón.
 
 ---
 
-# Automated Class Audit System and Report Generation
+# 🚀 Automated Class Auditing and Report Generation
 
-This repository contains an automated system designed for auditing educational video content and generating detailed reports. The workflow encompasses everything from downloading and optimizing videos hosted on Google Drive, analyzing them using artificial intelligence (AI) to evaluate pedagogical and technical aspects, to creating structured reports in professionally styled JSON, CSV, and PDF formats.
+This repository houses a comprehensive system for automated auditing of class recordings, utilizing advanced multimodal artificial intelligence capabilities and video processing tools. The project is designed to download videos from Google Drive, optimize them, analyze them using the Google Gemini API, and generate detailed audit reports in structured formats (JSON, TXT, CSV) and convert them into professional PDFs.
 
-## Overview
+[![Python Version](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-Unlicensed-red.svg)](https://choosealicense.com/no-permission/)
+[![Project Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)](https://github.com/yourusername/yourrepo/pulse)
+[![Google Gemini API](https://img.shields.io/badge/Google%20Gemini%20API-2.5%20Flash-orange.svg)](https://ai.google.dev/models/gemini)
+[![FFmpeg](https://img.shields.io/badge/FFmpeg-Required-lightgrey.svg)](https://ffmpeg.org/)
 
-The project consists of two main modules: `main.py` and `Create_html_to_PDF.py`. `main.py` orchestrates the process of acquisition, preprocessing, AI analysis, and text/CSV report generation. `Create_html_to_PDF.py` takes these text reports and transforms them into stylized HTML documents, which are then converted to PDF for final presentation. This system is optimized to handle videos of various durations, including those that exceed AI API processing limits, through an intelligent segmentation strategy.
+## 📋 Table of Contents
 
-## System Architecture
+1.  [Project Architecture](#1-project-architecture)
+    *   [`main.py` Module](#mainpy-module)
+    *   [`Create_html_to_PDF.py` Module](#create_html_to_pdfpy-module)
+2.  [Operating System Requirements](#2-operating-system-requirements)
+3.  [Python Dependencies](#3-python-dependencies)
+4.  [Environment Setup](#4-environment-setup)
+    *   [Environment Variables (`.env`)](#environment-variables-env)
+    *   [Google Credentials (`credentials_module.json`)](#google-credentials-credentials_modulejson)
+5.  [Usage](#5-usage)
+    *   [Step 1: Download and Audit Videos](#step-1-download-and-audit-videos)
+    *   [Step 2: Generate HTML and PDF Reports](#step-2-generate-html-and-pdf-reports)
+6.  [Output Examples](#6-output-examples)
+    *   [JSON Structure of the Audit Report](#json-structure-of-the-audit-report)
+7.  [Technical Details and Added Value](#7-technical-details-and-added-value)
+    *   [Google Drive Integration (`pydrive2`)](#google-drive-integration-pydrive2)
+    *   [Video Optimization and Processing (`moviepy`, `FFmpeg`)](#video-optimization-and-processing-moviepy-ffmpeg)
+    *   [Multimodal Analysis with Google Gemini API](#multimodal-analysis-with-google-gemini-api)
+    *   [Structured Report Generation (`pandas`, `xhtml2pdf`)](#structured-report-generation-pandas-xhtml2pdf)
+8.  [Security Considerations](#8-security-considerations)
 
-The system architecture can be described in the following phases:
+---
 
-1.  **Data Source:** Class videos stored in a specific Google Drive folder.
-2.  **Processing Module (`main.py`):**
-    *   **Authentication and Download:** Connects to Google Drive to list and download videos. Includes retry mechanisms and download integrity verification.
-    *   **Video Optimization:** Compresses and speeds up downloaded videos to reduce size and duration, optimizing AI API token consumption. A dual strategy (MoviePy and FFmpeg) is used for robustness.
-    *   **AI Analysis:** Uploads optimized videos to the Google Gemini API (model `gemini-2.5-flash`). A `system_instruction` and a detailed `prompt` are used to guide the AI in generating a structured audit report in JSON format.
-    *   **Handling Extensive Videos:** For videos exceeding the API's token limit, automatic segmentation is implemented using FFmpeg. Each segment is analyzed iteratively, and the AI maintains an "accumulated context" to generate a unified and coherent report.
-    *   **Intermediate Output Generation:** Audit results are saved as `.txt` files (plain text JSON) and `.csv` files.
-    *   **Cleanup:** Deletion of temporary video files and files uploaded to the Gemini API.
-3.  **Final Report Generation Module (`Create_html_to_PDF.py`):**
-    *   **Report Reading:** Identifies the `.txt` files generated by `main.py`.
-    *   **HTML Transformation with AI:** Utilizes the Google Gemini API to convert the text report content into an HTML document with a predefined style (inline CSS, corporate color palette, professional structure).
-    *   **PDF Conversion:** The generated HTML files are converted into PDF documents using `xhtml2pdf`, ensuring a consistent and professional final presentation.
-    *   **Cleanup:** Deletion of files uploaded to the Gemini API.
+## 1. Project Architecture
 
-## Key Features
+The system consists of two main modules that operate sequentially to achieve full automation:
 
-*   **Full Automation:** From video download to PDF report generation.
-*   **Resource Optimization:** Video compression and acceleration to minimize processing time and AI API costs.
-*   **Intelligent Auditing:** Detailed video content analysis using Google's `gemini-2.5-flash` model, focusing on pedagogical and technical metrics.
-*   **Scalability:** Ability to process long-duration videos through automatic segmentation and iterative analysis with context maintenance.
-*   **Structured Reports:** Generation of results in JSON, CSV, and PDF formats, facilitating integration and subsequent analysis.
-*   **Professional Styling:** PDF reports with a consistent design and corporate color palette, ready for presentation.
-*   **Error Handling:** Retry mechanisms for downloads and API calls, including rate limit management.
+### `main.py` Module
 
-## Technologies Used
+This script is the main orchestrator of the auditing process. Its key functions include:
 
-*   **Programming Language:** Python 3.x
-*   **Key APIs and Libraries:**
-    *   `google.generativeai`: Interaction with the Google Gemini API for video analysis and HTML generation.
-    *   `pydrive2`, `oauth2client`: Authentication and file management in Google Drive.
-    *   `moviepy`: Video editing and compression (as a primary option).
-    *   `subprocess`, `imageio_ffmpeg`: Direct execution of FFmpeg for advanced compression and video segmentation (as a fallback and for large videos).
-    *   `pandas`: Data manipulation and export to CSV format.
-    *   `dotenv`: Environment variable management for sensitive credentials and configurations.
-    *   `json`: Processing of JSON formatted data.
-    *   `xhtml2pdf` (with `pisa`): HTML to PDF conversion.
-    *   `os`, `glob`, `time`, `datetime`: File system operations, path management, time control.
+*   **Google Drive Authentication and Download**: Connects to Google Drive using `pydrive2` to list and download videos from a specific folder. It implements retries and size verification to ensure complete downloads.
+*   **Video Optimization**: Compresses and speeds up downloaded videos to reduce their size and duration, optimizing them for ingestion into the Google Gemini API. It uses `moviepy` as the primary option and direct `FFmpeg` as a robust fallback.
+*   **Multimodal Analysis with Google Gemini**: Uploads optimized videos to the Google Gemini API (`gemini-2.5-flash` model) for in-depth analysis of class content.
+*   **Handling Long Videos**: If a video exceeds the API's token limits, `FFmpeg` automatically segments it into smaller parts. Gemini processes each segment, accumulating and refining the audit report iteratively.
+*   **Structured Report Generation**: Gemini's response, formatted as JSON, is saved to `.txt` files and converted into a `pandas` `DataFrame` to generate a detailed `.csv` file.
 
-## Environment Setup
+### `Create_html_to_PDF.py` Module
 
-To run this project, follow these steps:
+This script is responsible for the final presentation of the audit reports:
 
-1.  **Clone the Repository:**
-    ```bash
-    git clone <REPOSITORY_URL>
-    cd <REPOSITORY_NAME>
-    ```
+*   **Reading TXT Reports**: Identifies the `.txt` report files generated by `main.py`.
+*   **HTML Generation with Gemini**: Uses the Google Gemini API to transform the content of the `.txt` reports into aesthetic and professional HTML code, following a predefined CSS template and specific style constraints.
+*   **PDF Conversion**: Converts the generated HTML files into PDF documents using the `xhtml2pdf` library, ensuring a final report format ready for distribution.
 
-2.  **Create a Virtual Environment (Recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Linux/macOS
-    # venv\Scripts\activate   # On Windows
-    ```
+## 2. Operating System Requirements
 
-3.  **Install Dependencies:**
-    It is recommended to create a `requirements.txt` file with the following dependencies:
-    ```
-    google-generativeai
-    python-dotenv
-    pydrive2
-    oauth2client
-    moviepy
-    imageio-ffmpeg
-    pandas
-    xhtml2pdf
-    ```
-    Then, install them:
-    ```bash
-    pip install -r requirements.txt
-    ```
+For the project to function correctly, the following tools must be installed at the operating system level:
 
-4.  **Configure Environment Variables:**
-    Create a `.env` file in the project root with the following variables:
-    ```
-    API_KEY_GEMINI_PRO_1.5="YOUR_GEMINI_API_KEY"
-    carpeta_drive="GOOGLE_DRIVE_FOLDER_ID"
-    ```
-    *   `API_KEY_GEMINI_PRO_1.5`: Obtain your API key from Google AI Studio.
-    *   `carpeta_drive`: The ID of the Google Drive folder where the videos to be audited are located. You can find it in the Drive folder's URL.
+*   **FFmpeg**: This is the fundamental tool for video processing (compression, acceleration, segmentation).
+    *   **Installation (Linux/macOS)**: `sudo apt-get install ffmpeg` or `brew install ffmpeg`
+    *   **Installation (Windows)**: Download the executable from [ffmpeg.org](https://ffmpeg.org/download.html) and add it to the system's PATH environment variable. The `imageio-ffmpeg` library helps locate it, but `ffmpeg` must be available on the system.
 
-5.  **Configure Google Drive Credentials:**
-    This project uses `pydrive2` to interact with Google Drive. You will need a `credentials_module.json` file.
-    *   Go to the [Google Cloud Developers Console](https://console.cloud.google.com/).
-    *   Create a new project or select an existing one.
-    *   Enable the "Google Drive API".
-    *   Go to "Credentials" and create new "OAuth client ID" credentials.
-    *   Select "Desktop app" as the application type.
-    *   Download the JSON credentials file and rename it to `credentials_module.json`. Place it in the project root.
-    *   **IMPORTANT:** This file contains sensitive information. **DO NOT UPLOAD IT TO A PUBLIC REPOSITORY.**
+## 3. Python Dependencies
 
-## Usage
+It is recommended to install dependencies in a virtual environment.
 
-The workflow runs in two sequential phases:
-
-1.  **Run the Audit and Report Generation Module (TXT/CSV):**
-    ```bash
-    python main.py
-    ```
-    This script will download, optimize, audit the videos, and generate `Reporte_Auditoria_*.txt` and `Reporte_Auditoria_*.csv` files in the project root.
-
-2.  **Run the PDF Conversion Module:**
-    ```bash
-    python Create_html_to_PDF.py
-    ```
-    This script will read the generated `.txt` files, convert them to stylized HTML using AI, and finally generate `Reporte_Auditoria_*.pdf` files in the project root.
-
-## Project Structure
-
-```
-.
-├── main.py
-├── Create_html_to_PDF.py
-├── .env
-├── credentials_module.json
-├── requirements.txt
-├── Reporte_Auditoria_NombreVideo.txt  # Output from main.py
-├── Reporte_Auditoria_NombreVideo.csv  # Output from main.py
-├── Reporte_Auditoria_NombreVideo.html # Intermediate file from Create_html_to_PDF.py
-├── Reporte_Auditoria_NombreVideo.pdf  # Final output from Create_html_to_PDF.py
-├── video_clase_temporal.mp4           # Temporary downloaded file
-├── clase_optimizada.mp4               # Temporary optimized file
-└── clase_optimizada_parte_XXX.mp4     # Temporary segment files (if applicable)
+```bash
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+venv\Scripts\activate     # Windows
+pip install -r requirements.txt
 ```
 
-## Core Logic
+The `requirements.txt` file must contain the following libraries:
 
-### `main.py`: Audit Orchestration
+```
+google-generativeai
+python-dotenv
+pydrive2
+moviepy
+imageio-ffmpeg
+pandas
+xhtml2pdf
+oauth2client # Needed for pydrive2 and gspread (if used)
+gspread # Imported in main.py, although not used in the current logic, it is kept in case of future extensions.
+```
 
-1.  **Google Drive Authentication and Download:**
-    The `login()` function uses `pydrive2` and `oauth2client` to authenticate with Google Drive. The `credentials_module.json` file is loaded, and access token expiration and refresh are managed.
-    The script iterates over files in the `carpeta_drive` (Google Drive folder ID) defined in `.env`. Each video is downloaded with a retry mechanism (`max_intentos`) and size verification (`os.path.getsize`) to ensure download integrity.
+## 4. Environment Setup
 
-2.  **Video Compression and Optimization:**
-    A dual compression strategy is implemented to ensure robustness and efficiency:
-    *   **`compresion_optimizacion(video_original, video_optimizado)` (MoviePy):** Attempts to compress and speed up the video using `moviepy`. It reduces the height to 240p and accelerates playback by 1.5 times (`MultiplySpeed`). The `write_videofile` parameters are adjusted for aggressive compression (preset `ultrafast`, `fps=0.5`, `audio_bitrate='32k'`, `ac=1`).
-    *   **`compresion_directa(clase_original, clase_optimizada)` (FFmpeg):** If MoviePy fails, `subprocess` is used to execute FFmpeg directly. The FFmpeg command applies complex filters (`-filter_complex`) to speed up the video (`setpts=0.666667*PTS` for 1.5x speed), scale to 360p (`scale=-2:360`), reduce FPS (`fps=0.5`), and adjust audio (`atempo=1.5`, `-b:a 32k`, `-ac 1`). FFmpeg is generally faster and more efficient for these tasks.
-    Compression is crucial for reducing video size, which translates to lower token consumption and faster processing by the Gemini API.
+### Environment Variables (`.env`)
 
-3.  **Auditing with Google Gemini:**
-    *   **API Configuration:** The `API_KEY_GEMINI_PRO_1.5` is loaded from `.env`, and `genai` is configured. The `gemini-2.5-flash` model is used for its balance of performance and cost.
-    *   **Video Upload:** The optimized video (`clase_optimizada.mp4`) is uploaded to the Gemini API (`genai.upload_file`). A waiting loop (`while archivo_clase.state.name == "PROCESSING"`) is implemented to monitor the file's processing status in the cloud.
-    *   **Instructions and Prompt:**
-        *   `system_instruction`: Defines the AI's role as an "Educational Quality Auditor," focusing on key metrics.
-        *   `generation_config`: Sets `temperature=0.1` for more deterministic responses and `response_mime_type="application/json"` to ensure structured output.
-        *   `prompt_final`: A detailed prompt requesting a strict audit report in JSON format, specifying each field and its expected content (summary, strengths, areas for improvement, ratings, etc.).
-    *   **Handling Extensive Videos (Segmentation):**
-        If the estimated `total_tokens` for the video exceeds 1,000,000 (a safety threshold to prevent API errors or excessive costs), the video is segmented.
-        *   `comando_parseo` (FFmpeg): Divides the video into 1500-second (25-minute) parts using `-segment_time`.
-        *   **Iterative Auditing:** Each segment is processed individually. The `generar_prompt_dinamico` function creates a prompt that includes the `contexto_acumulado` (accumulated context) from the report of previous parts. This allows the AI to maintain coherence and merge findings into a unified global report.
-        *   **Rate Limit Handling:** A retry loop (`limite_intentos_ragelimit_api`) with `time.sleep(30)` is implemented to manage `429` (Too Many Requests) errors from the API.
-    *   **Output and Cleanup:** The final report (JSON) is saved as a `.txt` file and converted to a `pandas.DataFrame` for export to `.csv`. All temporary video files (original, optimized, segments) and files uploaded to Gemini are deleted to free up space and ensure privacy.
+Create a `.env` file in the project root with the following variables:
 
-### `Create_html_to_PDF.py`: PDF Report Generation
+```ini
+API_KEY_GEMINI_PRO_1.5="YOUR_GOOGLE_GEMINI_API_KEY"
+carpeta_drive="YOUR_GOOGLE_DRIVE_FOLDER_ID"
+```
 
-1.  **Reading Audit Reports:**
-    `glob.glob("Reporte_Auditoria_*.txt")` is used to find all report files generated by `main.py`.
+*   **`API_KEY_GEMINI_PRO_1.5`**: Your API key to access Google Gemini. You can obtain it from [Google AI Studio](https://aistudio.google.com/app/apikey).
+*   **`carpeta_drive`**: The ID of the Google Drive folder where the videos to be audited are located. This ID can be found in the folder's URL (e.g., `https://drive.google.com/drive/folders/THIS_IS_THE_ID`).
 
-2.  **HTML Generation with Google Gemini:**
-    *   **API Configuration:** Similar to `main.py`, `genai` is configured with the API key.
-    *   **CSS Template:** An `Plantilla_HTML` (HTML Template) is defined with basic CSS for report styling (Tahoma font, orange colors, structure with divs and tables). This serves as the stylistic base for the AI.
-    *   **Prompt for HTML:** A specific `PROMPT` instructs the AI to convert the content of the `.txt` file into a "very beautiful and professional" HTML document. Strict rules are imposed:
-        *   Exclusive use of basic inline CSS or `<style>` tags.
-        *   **Explicit prohibition of `flexbox`, `CSS grid`, and `:root` variables** to ensure compatibility with `xhtml2pdf` and avoid unnecessary complexity.
-        *   Emphasis on using tables or divs with margins for structure.
-        *   Requirement for an orange-based color palette and a copyright `disclaimer`.
-    *   **Processing:** The `.txt` file is uploaded to Gemini, and the AI generates the HTML code.
-    *   **HTML Saving:** The generated HTML is saved to an intermediate `.html` file.
+### Google Credentials (`credentials_module.json`)
 
-3.  **HTML to PDF Conversion:**
-    *   `xhtml2pdf.pisa.CreatePDF()` is the central function for this conversion. It takes the HTML file (`archivo_html_final`) and converts it to a PDF file (`archivo_pdf_final`). This library is robust for converting HTML with basic CSS to PDF.
+To interact with Google Drive, the project requires a service account credentials file.
 
-4.  **Cleanup:** The text files uploaded to the Gemini API are deleted.
+1.  **Create a Project in Google Cloud Console**: Go to [console.cloud.google.com](https://console.cloud.google.com/) and create a new project.
+2.  **Enable APIs**: Enable the `Google Drive API` and `Google Sheets API` (if you plan to use `gspread` in the future) for your project.
+3.  **Create Service Account**:
+    *   Navigate to "IAM & Admin" -> "Service Accounts".
+    *   Create a new service account.
+    *   Assign a role that allows access to Google Drive (e.g., "Drive Viewer" or "Drive Editor" if you need to upload files).
+4.  **Generate JSON Key**:
+    *   Edit the newly created service account.
+    *   Go to the "Keys" section and click "Add Key" -> "Create new key".
+    *   Select "JSON" as the key type and download it.
+5.  **Rename and Locate**: Rename the downloaded JSON file to `credentials_module.json` and place it in the root of your project.
+6.  **Share Drive Folder**: Share the Google Drive folder (`carpeta_drive`) with the service account's email address (e.g., `service-account-name@project-id.iam.gserviceaccount.com`).
 
-## Added Value
+## 5. Usage
 
-This system offers significant value over manual or less integrated solutions:
+The process runs in two main phases.
 
-*   **Operational Efficiency:** Automates a process that would otherwise be labor-intensive, freeing up resources for higher-value tasks.
-*   **Consistency and Standardization:** Ensures that all audit reports follow a uniform structure and style, facilitating comparison and analysis.
-*   **Deep AI-Powered Analysis:** Leverages the advanced capabilities of Google Gemini's multimodal models to extract qualitative and quantitative insights from videos, something unfeasible with traditional methods.
-*   **Robust Scalability:** The ability to segment large videos and process them iteratively allows for auditing extensive content collections without worrying about API limits.
-*   **Professional Presentation:** The generated PDF reports are visually appealing and ready to be shared with stakeholders, enhancing the perception of quality and professionalism.
-*   **Cost Reduction:** Video optimization before AI auditing minimizes token consumption, directly translating to reduced API operational costs.
-*   **Technological Flexibility:** The implementation of a dual strategy for video compression (MoviePy/FFmpeg) ensures the robustness of the process against potential failures of one of the tools.
+### Step 1: Download and Audit Videos
 
-## Security Considerations
+Execute the `main.py` script to initiate video download, optimization, and auditing.
 
-*   **Environment Variables:** API keys and folder IDs are managed via a `.env` file, which should be excluded from version control (`.gitignore`).
-*   **Google Drive Credentials:** The `credentials_module.json` file is sensitive and **must never be uploaded to a public repository**.
-*   **Data Cleanup:** The system proactively deletes temporary video files and files uploaded to the Gemini API once they have been processed, minimizing data exposure.
+```bash
+python main.py
+```
 
-## License
+This script will perform the following actions:
+1.  It will authenticate with Google Drive.
+2.  It will list the videos in the specified folder.
+3.  It will download each video, verifying download integrity.
+4.  It will optimize the video (compression and acceleration).
+5.  It will upload the video (or its segments) to Google Gemini for analysis.
+6.  It will generate an audit report in JSON, TXT, and CSV formats for each video.
+7.  It will delete temporary video files and files uploaded to Gemini to optimize storage and costs.
 
-This project is distributed under the MIT License. Refer to the `LICENSE` file for more details.
+### Step 2: Generate HTML and PDF Reports
+
+Once `main.py` has generated the `.txt` audit files, execute `Create_html_to_PDF.py` to convert them into HTML and PDF reports.
+
+```bash
+python Create_html_to_PDF.py
+```
+
+This script will:
+1.  Read all `Reporte_Auditoria_*.txt` files.
+2.  Use Google Gemini to transform the text into stylized HTML.
+3.  Convert the resulting HTML into a PDF file.
+
+## 6. Output Examples
+
+### JSON Structure of the Audit Report
+
+The `main.py` module generates a `.txt` and `.csv` file with the following JSON structure as a base:
+
+```json
+{
+  "resumen_clase": "The class focused on the introduction to Python programming, covering variables, data types, and basic control structures.",
+  "objetivo_alcanzado": "Yes - All planned topics were covered, and practical exercises were conducted.",
+  "puntos_fuertes": [
+    "Clarity in explaining complex concepts.",
+    "Effective use of real-time code examples.",
+    "Encouragement of active participation with open-ended questions."
+  ],
+  "oportunidades_mejora": [
+    "Some prolonged pauses when looking for examples.",
+    "The presentation speed was inconsistent in certain segments.",
+    "An interactive tool for quick polls was not used."
+  ],
+  "recomendaciones_accionables": [
+    "Prepare code examples in advance to avoid pauses.",
+    "Implement a quick polling tool to assess comprehension."
+  ],
+  "nivel_participacion": "High - Students asked pertinent questions and responded to the proposed exercises.",
+  "manejo_del_tiempo": "Adequate - Time was distributed equally between theoretical explanation and practice, although the closing was a bit rushed.",
+  "herramientas_utilizadas": [
+    "Slide presentation (Google Slides)",
+    "Online IDE (Replit)",
+    "Virtual whiteboard (Jamboard)"
+  ],
+  "incidencias_notables": [
+    "Brief audio interruption at the beginning (30 seconds).",
+    "None"
+  ],
+  "calificacion_pedagogica": 85,
+  "calificacion_tecnica": 90,
+  "comentario_final": "The instructor demonstrated excellent subject mastery and an effective methodology. It is suggested to optimize fluidity in transitions and explore interactive tools to maximize engagement."
+}
+```
+
+The `.csv` file will represent this structure in tabular format, with lists (`puntos_fuertes`, `oportunidades_mejora`, etc.) joined by line breaks within a single cell.
+
+## 7. Technical Details and Added Value
+
+### Google Drive Integration (`pydrive2`)
+
+*   **Robustness**: `pydrive2` offers a robust and secure programmatic interface for interacting with Google Drive. The implementation includes retry logic and file size verification (`os.path.getsize` vs `fileSize` from Drive) to ensure complete downloads and handle network or API failures.
+*   **Authentication**: It uses `oauth2client.service_account.ServiceAccountCredentials` via `pydrive2`'s `GoogleAuth` for non-interactive authentication, ideal for automated workflows on servers or scripts.
+
+### Video Optimization and Processing (`moviepy`, `FFmpeg`)
+
+*   **Compression Strategy**: Videos are optimized to reduce size and duration, which is crucial for meeting Gemini API's size and processing speed limits.
+    *   **Resizing**: `height=240` (or `scale=-2:360` with FFmpeg) drastically reduces resolution without losing the intelligibility of educational content.
+    *   **Acceleration**: `MultiplySpeed(1.5)` (or `setpts=0.666667*PTS, atempo=1.5` with FFmpeg) speeds up video and audio, allowing faster analysis of lengthy classes.
+    *   **`fps=0.5`**: Reduces the frame rate to a minimum acceptable level for static or semi-dynamic content analysis, further optimizing size.
+    *   **`preset='ultrafast'`**: Prioritizes encoding speed over quality, suitable for videos intended for AI analysis.
+    *   **`audio_bitrate='32k'`, `ac='1'`**: Reduces quality and converts audio to mono, minimizing the audio component's size.
+*   **Resilience**: The implementation prioritizes `moviepy` for its high-level API but includes a direct fallback to `FFmpeg` via `subprocess` and `imageio-ffmpeg`. This strategy ensures robust video processing even if `moviepy` encounters specific codec or configuration issues, leveraging `FFmpeg`'s efficiency and reliability.
+*   **Intelligent Segmentation**: For videos exceeding Gemini API's token limits, `FFmpeg` is used to segment the video into smaller parts (`-segment_time '1500'` for 25-minute segments). This allows processing long classes incrementally.
+
+### Multimodal Analysis with Google Gemini API
+
+*   **`gemini-2.5-flash` Model**: Chosen for its balance of performance, speed, and cost, making it ideal for video analysis tasks where latency is a factor.
+*   **Multimodal Analysis**: The Gemini API allows direct analysis of video content alongside textual prompts, which is fundamental for the "Educational Quality Auditor" role.
+*   **Structured Output (JSON)**: The `generation_config` is set to force the response in `application/json` format, ensuring consistency and ease of parsing for reports.
+*   **Dynamic Prompting for Long Videos**: The `generar_prompt_dinamico` function allows Gemini to maintain an "accumulated context" from previous video parts. This ensures the final report is coherent and comprehensive, merging findings from each segment into a single unified report.
+*   **Token and Cost Management**: Token calculation (`funcionalidad_gemini.count_tokens`) is performed to anticipate consumption. Video segmentation and deletion of files from the cloud (`genai.delete_file`) are key practices for optimizing API costs.
+*   **Rate Limit Handling**: A retry mechanism with `time.sleep` is implemented to handle `429` (Too Many Requests) or `Quota` API errors, improving system robustness in high-demand environments.
+
+### Structured Report Generation (`pandas`, `xhtml2pdf`)
+
+*   **`pandas` for CSV**: Converting Gemini's JSON to a `pandas` `DataFrame` facilitates CSV file generation, allowing for subsequent tabular analysis in tools like Excel or Google Sheets. The logic of joining lists with line breaks (`"\n".join(v)`) is crucial for maintaining readability within CSV cells.
+*   **`xhtml2pdf` for PDF**: Unlike `pdfkit` (which often requires external `wkhtmltopdf`), `xhtml2pdf` (`pisa`) is a purely Python solution for converting HTML to PDF. This simplifies implementation and reduces operating system-level dependencies for the report generation phase.
+*   **Dynamic HTML with Gemini**: Gemini's ability to generate HTML from a prompt and a CSS template allows for flexible and professional report customization, without the need to maintain complex static HTML templates. The prompt guides Gemini to use basic CSS and avoid modern frameworks, ensuring compatibility with `xhtml2pdf`.
+
+## 8. Security Considerations
+
+*   **Credentials**: API keys or service credentials should never be exposed directly in source code or the repository. Using locally managed `.env` files and `credentials_module.json` is a standard security practice.
+*   **Google Drive Access**: The service account should have the minimum necessary permissions for the operation (e.g., read-only if file uploads are not required).
+*   **Sensitive Data**: The system is designed to audit educational content. Ensure that video content complies with your organization's privacy and data usage policies.
